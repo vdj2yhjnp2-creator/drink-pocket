@@ -67,7 +67,7 @@
       border:1px solid rgba(247,244,239,0.45);
       font-size:0.72rem;
     }
-    .categories-btn, .add-category-btn{
+    .categories-btn{
       background:rgba(255,255,255,0.2);
       border:1px solid rgba(255,255,255,0.3);
       border-radius:12px;
@@ -81,16 +81,9 @@
       align-items:center;
       gap:4px;
     }
-    .categories-btn:hover, .add-category-btn:hover{
+    .categories-btn:hover{
       background:rgba(255,255,255,0.3);
       transform:translateY(-1px);
-    }
-    .add-category-btn{
-      width:36px;
-      height:36px;
-      padding:0;
-      justify-content:center;
-      font-size:1.1rem;
     }
     .bar{
       padding:10px 16px 14px;
@@ -380,6 +373,34 @@
       font-weight:600;
       color:var(--mint-dark);
       margin-bottom:12px;
+    }
+    .modal-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .add-category-in-modal{
+      width:36px;
+      height:36px;
+      background:var(--mint-main);
+      border:none;
+      border-radius:999px;
+      color:#fff;
+      font-size:1.1rem;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 4px 12px rgba(92,107,79,0.3);
+      transition:all .12s ease;
+    }
+    .add-category-in-modal:hover{
+      background:var(--mint-dark);
+      transform:translateY(-1px);
+    }
+    .add-category-in-modal:active{
+      transform:translateY(0);
     }
     .modal-textarea{
       width:100%;
@@ -725,8 +746,7 @@
       </div>
       <div class="header-actions">
         <div class="tag" id="statusTag">offline • questo dispositivo</div>
-        <button class="categories-btn" id="categoriesBtn">🏷️ Categorie</button>
-        <button class="add-category-btn" id="addCategoryBtn">➕</button>
+        <button class="categories-btn" id="categoriesBtn">📂 Categorie</button>
       </div>
     </header>
 
@@ -780,7 +800,10 @@
   <!-- Modal per gestione categorie -->
   <div id="manageCategoriesModal" class="modal-overlay">
     <div class="modal-content categories-modal-content">
-      <div class="modal-title">Gestione Categorie</div>
+      <div class="modal-header">
+        <div class="modal-title">Gestione Categorie</div>
+        <button class="add-category-in-modal" id="addCategoryBtn">➕</button>
+      </div>
       <div id="categoriesList"></div>
       <div class="modal-actions">
         <button class="modal-btn modal-btn-confirm" id="saveCategoriesBtn">Chiudi</button>
@@ -884,6 +907,13 @@
       hasSearched = false;
       document.getElementById('search').value = '';
       document.getElementById('filterIndicator').style.display = 'none';
+      render();
+      updateUIForFilter();
+    }
+
+    function refreshPage(){
+      clearFilter();
+      loadFromStorage();
       render();
     }
 
@@ -1433,8 +1463,11 @@
       const bar = document.createElement('div');
       bar.className = 'backup-bar';
       bar.innerHTML = `
+        <button class="backup-btn" id="refreshBtn" style="display:${currentFilter || hasSearched ? 'flex' : 'none'};">
+          <span class="icon">🔄</span><span>Torna all'inizio</span>
+        </button>
         <button class="backup-btn" id="clearFilterBtn" style="display:${currentFilter ? 'flex' : 'none'};">
-          <span class="icon">❌</span><span>${currentFilter?.type === 'category' ? 'Pulisci filtro' : 'Pulisci'}</span>
+          <span class="icon">❌</span><span>Pulisci filtro</span>
         </button>
         <button class="backup-btn" id="legendBtn">
           <span class="icon">📋</span><span>Legenda</span>
@@ -1447,6 +1480,7 @@
         </button>`;
       document.querySelector('.fab-wrap').prepend(bar);
       
+      document.getElementById('refreshBtn').onclick = refreshPage;
       document.getElementById('clearFilterBtn').onclick = clearFilter;
       document.getElementById('legendBtn').onclick = (e) => { e.stopPropagation(); openLegenda(); };
       document.getElementById('exportBtn').onclick = exportDrinks;
