@@ -330,14 +330,18 @@
       position:relative;
     }
     .backup-bar{
+      max-height:200px;
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
       display:flex;
+      flex-direction:column;
       gap:8px;
       margin-top:2px;
+      padding:8px 0;
     }
     .backup-btn{
-      flex:1;
       font-size:0.78rem;
-      padding:7px 10px;
+      padding:10px 12px;
       border-radius:999px;
       border:1px dashed rgba(155,175,139,0.7);
       background:rgba(247,244,239,0.9);
@@ -360,6 +364,7 @@
       align-items:flex-end;
     }
     .modal-overlay.active{display:flex;}
+    .modal-overlay:not(.active){pointer-events:none;}
     .modal-content{
       background:#fff;
       border-radius:20px 20px 0 0;
@@ -367,12 +372,14 @@
       width:100%;
       max-width:520px;
       box-shadow:0 -10px 30px rgba(0,0,0,0.2);
+      max-height:90vh;
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
     }
     .modal-title{
       font-size:1.1rem;
       font-weight:600;
       color:var(--mint-dark);
-      margin-bottom:12px;
     }
     .modal-header{
       display:flex;
@@ -734,6 +741,7 @@
       .header h1{font-size:1.5rem;}
       .list{padding-bottom:78px;}
       .categories-grid{grid-template-columns:repeat(2,1fr);}
+      .backup-bar{max-height:250px;}
     }
   </style>
 </head>
@@ -770,7 +778,7 @@
   </div>
 
   <!-- Modal per selezione tipo -->
-  <div id="typeModal" class="modal-overlay">
+  <div id="typeModal" class="modal-overlay" onclick="if(event.target === this) closeModal('typeModal')">
     <div class="modal-content">
       <div class="modal-title">Seleziona tipo</div>
       <select id="typeSelect" class="modal-select">
@@ -786,7 +794,7 @@
   </div>
 
   <!-- Modal per categorie -->
-  <div id="categoriesModal" class="modal-overlay">
+  <div id="categoriesModal" class="modal-overlay" onclick="if(event.target === this) closeModal('categoriesModal')">
     <div class="modal-content">
       <div class="modal-title">Seleziona categorie</div>
       <div class="categories-grid" id="categoriesGrid"></div>
@@ -798,7 +806,7 @@
   </div>
 
   <!-- Modal per gestione categorie -->
-  <div id="manageCategoriesModal" class="modal-overlay">
+  <div id="manageCategoriesModal" class="modal-overlay" onclick="if(event.target === this) closeModal('manageCategoriesModal')">
     <div class="modal-content categories-modal-content">
       <div class="modal-header">
         <div class="modal-title">Gestione Categorie</div>
@@ -812,7 +820,7 @@
   </div>
 
   <!-- Modal per ingredienti -->
-  <div id="ingredientsModal" class="modal-overlay">
+  <div id="ingredientsModal" class="modal-overlay" onclick="if(event.target === this) closeModal('ingredientsModal')">
     <div class="modal-content">
       <div class="modal-title">Ingredienti</div>
       <textarea id="ingredientsTextarea" class="modal-textarea" placeholder="Scrivi ogni ingrediente su una nuova riga:
@@ -827,7 +835,7 @@
   </div>
 
   <!-- Modal per preparazione -->
-  <div id="preparationModal" class="modal-overlay">
+  <div id="preparationModal" class="modal-overlay" onclick="if(event.target === this) closeModal('preparationModal')">
     <div class="modal-content">
       <div class="modal-title">Preparazione / Note</div>
       <textarea id="preparationTextarea" class="modal-textarea" placeholder="Scrivi la preparazione su più righe..."></textarea>
@@ -894,6 +902,10 @@
       localStorage.setItem(CATEGORIES_KEY, JSON.stringify(categories));
     }
 
+    function closeModal(modalId){
+      document.getElementById(modalId + 'Modal').classList.remove('active');
+    }
+
     function setFilter(type, id){
       currentFilter = {type, id};
       hasSearched = true;
@@ -951,14 +963,14 @@
           alert('Seleziona un tipo');
           return;
         }
-        document.getElementById('typeModal').classList.remove('active');
+        closeModal('type');
         confirmBtn.removeEventListener('click', handleConfirm);
         cancelBtn.removeEventListener('click', handleCancel);
         callback(type);
       };
       
       const handleCancel = () => {
-        document.getElementById('typeModal').classList.remove('active');
+        closeModal('type');
         confirmBtn.removeEventListener('click', handleConfirm);
         cancelBtn.removeEventListener('click', handleCancel);
       };
@@ -976,14 +988,14 @@
       
       const handleConfirm = () => {
         const selected = Array.from(document.querySelectorAll('#categoriesGrid input:checked')).map(cb => parseInt(cb.value));
-        document.getElementById('categoriesModal').classList.remove('active');
+        closeModal('categories');
         confirmBtn.removeEventListener('click', handleConfirm);
         cancelBtn.removeEventListener('click', handleCancel);
         callback(selected);
       };
       
       const handleCancel = () => {
-        document.getElementById('categoriesModal').classList.remove('active');
+        closeModal('categories');
         confirmBtn.removeEventListener('click', handleConfirm);
         cancelBtn.removeEventListener('click', handleCancel);
       };
@@ -1015,14 +1027,14 @@
       
       const handleConfirm = () => {
         const value = textarea.value;
-        document.getElementById(modalId + 'Modal').classList.remove('active');
+        closeModal(modalId);
         confirmBtn.removeEventListener('click', handleConfirm);
         cancelBtn.removeEventListener('click', handleCancel);
         callback(value);
       };
       
       const handleCancel = () => {
-        document.getElementById(modalId + 'Modal').classList.remove('active');
+        closeModal(modalId);
         confirmBtn.removeEventListener('click', handleConfirm);
         cancelBtn.removeEventListener('click', handleCancel);
       };
@@ -1490,7 +1502,7 @@
     });
 
     document.getElementById('saveCategoriesBtn').addEventListener('click', () => {
-      document.getElementById('manageCategoriesModal').classList.remove('active');
+      closeModal('manageCategories');
     });
     
     document.getElementById('importInput').addEventListener('change', e => {
