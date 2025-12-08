@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🍹 Drink Pocket</title>
     <script type="module">
+        // Firebase Realtime - sincronizzazione automatica PC ↔ telefono
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
         import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
         
@@ -12,159 +13,231 @@
             apiKey: "AIzaSyDq0z0XzL3kL9z5qZ7xY8w9vT2uR4sQ6pM",
             authDomain: "drink-pocket-sync.firebaseapp.com",
             databaseURL: "https://drink-pocket-sync-default-rtdb.europe-west1.firebasedatabase.app/",
-            projectId: "drink-pocket-sync",
-            storageBucket: "drink-pocket-sync.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef123456"
+            projectId: "drink-pocket-sync"
         };
         
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const drinksRef = ref(db, 'drinks');
         
-        window.dbReady = true;
+        // Rendi globale per JavaScript
+        window.FB_READY = true;
         window.drinksRef = drinksRef;
         window.setDrinks = set;
         window.onValue = onValue;
     </script>
     <style>
-        body{font-family:system-ui,max-width:600px;margin:0 auto;padding:20px;background:#f8f9fa}
-        input,button{padding:12px;margin:8px 0;width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;font-size:16px}
-        button{background:#007bff;color:white;border:none;cursor:pointer}
-        button:hover{background:#0056b3}
-        .drink{background:#fff;padding:20px;margin:12px 0;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
-        .drink h3{margin:0 0 10px;font-size:1.3em}
-        .search{background:#e3f2fd;padding:15px;border-radius:8px;margin-bottom:15px}
-        #lista{min-height:200px}
-        small{color:#666}
-        .status{padding:10px;border-radius:5px;margin:10px 0}
-        .ok{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
-        .error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 500px; margin: 0 auto; 
+            background: rgba(255,255,255,0.95); 
+            border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header { 
+            background: linear-gradient(135deg, #ff6b6b, #feca57); 
+            color: white; 
+            padding: 30px 20px; 
+            text-align: center; 
+        }
+        .header h1 { font-size: 2em; margin-bottom: 5px; }
+        .status { 
+            padding: 12px 20px; 
+            background: #d4edda; 
+            color: #155724; 
+            font-weight: 500; 
+            text-align: center; 
+            font-size: 14px;
+        }
+        .search { 
+            padding: 20px; 
+            background: #f8f9fa; 
+        }
+        .search input { 
+            width: 100%; padding: 16px 20px; 
+            border: 2px solid #e9ecef; 
+            border-radius: 16px; 
+            font-size: 16px; 
+            background: white;
+            transition: all 0.3s;
+        }
+        .search input:focus { 
+            outline: none; 
+            border-color: #007bff; 
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        .fab { 
+            position: fixed; 
+            bottom: 30px; right: 30px; 
+            width: 70px; height: 70px; 
+            background: linear-gradient(135deg, #ff6b6b, #feca57); 
+            border: none; 
+            border-radius: 50%; 
+            color: white; 
+            font-size: 24px; 
+            box-shadow: 0 10px 30px rgba(255,107,107,0.4);
+            cursor: pointer; 
+            transition: all 0.3s;
+        }
+        .fab:hover { transform: scale(1.1); }
+        .lista { padding: 20px; min-height: 300px; }
+        .drink { 
+            background: white; 
+            margin-bottom: 16px; 
+            border-radius: 16px; 
+            padding: 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+        .drink:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+        .drink h3 { color: #2c3e50; margin-bottom: 8px; font-size: 1.3em; }
+        .drink p { color: #7f8c8d; margin: 4px 0; font-size: 15px; }
+        .drink small { color: #95a5a6; }
+        .actions { margin-top: 12px; display: flex; gap: 8px; }
+        .btn { 
+            flex: 1; padding: 10px 16px; 
+            border: none; border-radius: 8px; 
+            font-weight: 500; cursor: pointer; 
+            transition: all 0.3s;
+        }
+        .btn-edit { background: #28a745; color: white; }
+        .btn-delete { background: #dc3545; color: white; }
+        .btn:hover { transform: scale(1.02); }
+        .backup { padding: 20px; background: #f8f9fa; border-top: 1px solid #e9ecef; display: flex; gap: 12px; }
+        .btn-backup { flex: 1; padding: 14px; border-radius: 12px; border: none; background: #6c757d; color: white; cursor: pointer; }
+        @media (max-width: 480px) { .container { margin: 10px; border-radius: 20px; } }
     </style>
 </head>
 <body>
-    <h1>🍹 Drink Pocket</h1>
-    <div id="status" class="status">Caricamento Firebase...</div>
-    
-    <div class="search">
-        <input type="text" id="cerca" placeholder="🔍 Cerca drink..." oninput="filtra()">
+    <div class="container">
+        <div class="header">
+            <h1>🍹 Drink Pocket</h1>
+            <div id="status" class="status">🔄 Connessione...</div>
+        </div>
+        
+        <div class="search">
+            <input type="text" id="cerca" placeholder="🔍 Cerca tra i tuoi drink...">
+        </div>
+        
+        <div class="lista" id="lista"></div>
+        
+        <div class="backup">
+            <button class="btn-backup" onclick="esporta()">📤 Backup</button>
+            <input type="file" id="importa" accept=".json" onchange="importa(event)" style="display:none">
+            <button class="btn-backup" onclick="document.getElementById('importa').click()">📥 Ripristina</button>
+        </div>
     </div>
     
-    <button onclick="nuovo()">+ Nuovo Drink</button>
-    <div id="lista"></div>
-    
-    <div style="margin-top:30px;padding-top:20px;border-top:1px solid #eee">
-        <button onclick="testSync()">🧪 Test Sincronizzazione</button>
-        <button onclick="esporta()">📤 Backup</button>
-        <input type="file" id="importa" accept=".json" onchange="importa(event)" style="display:none">
-        <button onclick="document.getElementById('importa').click()">📥 Ripristina</button>
-    </div>
+    <button class="fab" onclick="nuovo()">➕</button>
 
     <script>
         let drinks = [];
         
-        // Test Firebase
-        if(window.dbReady) {
-            document.getElementById('status').innerHTML = '✅ Firebase OK - Sincronizzazione attiva';
-            document.getElementById('status').className = 'status ok';
-            
-            onValue(window.drinksRef, (snap) => {
-                drinks = snap.val() ? Object.values(snap.val()) : [];
-                aggiornaLista();
+        // Inizializza Firebase sync
+        if(window.FB_READY) {
+            window.onValue(window.drinksRef, (snapshot) => {
+                drinks = snapshot.val() ? Object.values(snapshot.val()) : [];
+                document.getElementById('status').textContent = `✅ Sincronizzato (${drinks.length} drink)`;
+                render();
             });
+            document.getElementById('status').textContent = '✅ Sincronizzazione attiva';
         } else {
-            document.getElementById('status').innerHTML = '❌ Firebase non caricato - Usa esporta/importa';
-            document.getElementById('status').className = 'status error';
+            document.getElementById('status').textContent = '⚠️ Modalità offline';
         }
         
-        function salva() {
-            if(window.dbReady) {
+        function render() {
+            const query = document.getElementById('cerca').value.toLowerCase();
+            const lista = document.getElementById('lista');
+            lista.innerHTML = drinks
+                .filter(d => d.nome.toLowerCase().includes(query))
+                .map((drink, i) => drinkCard(drink, i))
+                .join('') || '<div style="text-align:center;padding:40px;color:#95a5a6"><p>🍸 Nessun drink trovato</p><p>Aggiungi il primo!</p></div>';
+        }
+        
+        function drinkCard(drink, i) {
+            return `
+                <div class="drink">
+                    <h3>${drink.nome}</h3>
+                    ${drink.ingredienti ? `<p>🥃 ${drink.ingredienti}</p>` : ''}
+                    ${drink.istruzioni ? `<p>📝 ${drink.istruzioni}</p>` : ''}
+                    <small>✨ ${drink.data || 'Data'}</small>
+                    <div class="actions">
+                        <button class="btn btn-edit" onclick="edit(${i})">✏️ Modifica</button>
+                        <button class="btn btn-delete" onclick="del(${i})">🗑️ Elimina</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        window.nuovo = function() {
+            const nome = prompt("🍹 Nome del drink:");
+            if(nome && window.FB_READY) {
+                drinks.push({
+                    nome,
+                    ingredienti: "",
+                    istruzioni: "",
+                    data: new Date().toLocaleDateString('it-IT')
+                });
+                save();
+            }
+        }
+        
+        window.edit = function(i) {
+            const d = drinks[i];
+            d.nome = prompt("Nome:", d.nome) || d.nome;
+            d.ingredienti = prompt("Ingredienti:", d.ingredienti) || d.ingredienti;
+            d.istruzioni = prompt("Preparazione:", d.istruzioni) || d.istruzioni;
+            d.data = new Date().toLocaleDateString('it-IT');
+            save();
+        }
+        
+        window.del = function(i) {
+            if(confirm("🗑️ Eliminare questo drink?")) {
+                drinks.splice(i, 1);
+                save();
+            }
+        }
+        
+        function save() {
+            if(window.FB_READY) {
                 const data = {};
-                drinks.forEach((d,i) => data[i] = d);
+                drinks.forEach((d, i) => data[i] = d);
                 window.setDrinks(window.drinksRef, data);
             }
         }
         
-        function testSync() {
-            drinks.push({
-                nome: 'TEST ' + new Date().toLocaleTimeString(),
-                data: 'Sync OK',
-                ingredienti: 'Aperto da: ' + navigator.userAgent.slice(0,50)
-            });
-            salva();
-            alert('Test aggiunto! Controlla l\'altro dispositivo!');
-        }
+        document.getElementById('cerca').addEventListener('input', render);
         
-        function nuovo() {
-            const nome = prompt("Nome drink:");
-            if(nome && window.dbReady) {
-                drinks.push({
-                    nome, ingredienti:"", istruzioni:"", 
-                    data: new Date().toLocaleDateString('it-IT')
-                });
-                salva();
-            } else if(!window.dbReady) {
-                alert('Firebase non funziona, usa esporta/importa');
-            }
-        }
-        
-        function filtra() {
-            const q = document.getElementById('cerca').value.toLowerCase();
-            document.getElementById('lista').innerHTML = 
-                drinks.filter(d=>d.nome.toLowerCase().includes(q))
-                      .map((d,i)=>drinkHTML(d,i)).join('');
-        }
-        
-        function aggiornaLista() { filtra(); }
-        
-        function drinkHTML(drink, i) {
-            return `<div class="drink">
-                <h3>${drink.nome}</h3>
-                <p><strong>🥃 Ingredienti:</strong> ${drink.ingredienti||'—'}</p>
-                <p><strong>📝 Istruzioni:</strong> ${drink.istruzioni||'—'}</p>
-                <small>✨ ${drink.data}</small>
-                <br><br>
-                <button onclick="mod(${i})" style="background:#28a745;width:48%;margin-right:4%">✏️</button>
-                <button onclick="elim(${i})" style="background:#dc3545;width:48%">🗑️</button>
-            </div>`;
-        }
-        
-        function mod(i) {
-            const d = drinks[i];
-            d.nome = prompt("Nome:", d.nome)||d.nome;
-            d.ingredienti = prompt("Ingredienti:", d.ingredienti)||d.ingredienti;
-            d.istruzioni = prompt("Istruzioni:", d.istruzioni)||d.istruzioni;
-            d.data = new Date().toLocaleDateString('it-IT');
-            salva();
-        }
-        
-        function elim(i) {
-            if(confirm("Eliminare?")) {
-                drinks.splice(i,1);
-                salva();
-            }
-        }
-        
-        function esporta() {
+        // Backup/Ripristino
+        window.esporta = () => {
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([JSON.stringify(drinks,null,2)],{type:'application/json'}));
-            a.download = 'drinks.json';
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(drinks, null, 2)], {type: 'application/json'}));
+            a.download = `drink-pocket-${new Date().toISOString().slice(0,10)}.json`;
             a.click();
         }
         
-        function importa(e) {
+        window.importa = (e) => {
             const file = e.target.files[0];
-            const r = new FileReader();
-            r.onload = ev => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
                 try {
-                    const data = JSON.parse(ev.target.result);
-                    if(confirm("Sovrascrivere?")) {
-                        drinks = data;
-                        salva();
+                    const imported = JSON.parse(ev.target.result);
+                    if(confirm(`Importare ${imported.length} drink?`)) {
+                        drinks = imported;
+                        save();
                     }
-                } catch { alert("File non valido"); }
+                } catch {
+                    alert('❌ File non valido');
+                }
             };
-            r.readAsText(file);
+            reader.readAsText(file);
         }
     </script>
 </body>
