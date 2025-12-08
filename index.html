@@ -278,6 +278,8 @@
       justify-content:center;
       cursor:pointer;
       font-size:1.1rem;
+      z-index:50;
+      position:relative;
     }
     .backup-bar{
       display:flex;
@@ -369,11 +371,17 @@
       position:fixed;
       top:0;left:0;right:0;bottom:0;
       background:rgba(0,0,0,0.5);
-      z-index:100;
+      z-index:999;
       justify-content:center;
       align-items:flex-end;
     }
     .legend-overlay.active{display:flex;}
+    .legend-overlay.active::before{
+      content:"";
+      position:fixed;
+      top:0;left:0;right:0;bottom:0;
+      z-index:998;
+    }
     .legend-content{
       background:#fff;
       border-radius:20px 20px 0 0;
@@ -384,6 +392,8 @@
       display:flex;
       flex-direction:column;
       box-shadow:0 -10px 30px rgba(0,0,0,0.2);
+      z-index:999;
+      position:relative;
     }
     .legend-header{
       display:flex;
@@ -401,10 +411,14 @@
       font-size:1.3rem;
       cursor:pointer;
       color:var(--text-soft);
+      z-index:1000;
+      position:relative;
     }
     .legend-scroll{
       overflow-y:auto;
       flex:1;
+      -webkit-overflow-scrolling:touch;
+      touch-action:manipulation;
     }
     .legend-list{
       list-style:none;
@@ -413,6 +427,7 @@
       gap:8px;
       margin:0;
       padding:0;
+      pointer-events:auto;
     }
     .legend-item{
       padding:12px;
@@ -421,6 +436,7 @@
       border-radius:8px;
       cursor:pointer;
       transition:all .12s ease;
+      pointer-events:auto;
     }
     .legend-item:hover{
       background:rgba(155,175,139,0.15);
@@ -491,11 +507,11 @@
   </div>
 
   <!-- Modal Legenda -->
-  <div id="legendModal" class="legend-overlay">
+  <div id="legendModal" class="legend-overlay" onclick="if(event.target === this) closeLegenda()">
     <div class="legend-content">
       <div class="legend-header">
         Legenda
-        <button class="legend-close" id="closeLegendBtn">✕</button>
+        <button class="legend-close" id="closeLegendBtn" onclick="closeLegenda(); return false;">✕</button>
       </div>
       <div class="legend-scroll">
         <ul id="legendList" class="legend-list"></ul>
@@ -565,7 +581,7 @@
         legendList.innerHTML = '<li style="text-align:center;padding:20px;color:var(--text-soft)">Nessun drink salvato</li>';
       } else {
         legendList.innerHTML = sorted.map(d => `
-          <li class="legend-item" onclick="searchDrink('${escapeHtml(d.nome)}')">
+          <li class="legend-item" onclick="searchDrink('${escapeHtml(d.nome)}'); return false;">
             <div class="legend-item-name">${escapeHtml(d.nome)}</div>
           </li>
         `).join('');
@@ -576,6 +592,8 @@
 
     function closeLegenda(){
       document.getElementById('legendModal').classList.remove('active');
+      const existing = document.querySelector('.backup-bar');
+      if(existing){existing.remove();}
     }
 
     function searchDrink(nome){
@@ -745,7 +763,8 @@
       render();
     });
 
-    document.getElementById('menuBtn').addEventListener('click',()=>{
+    document.getElementById('menuBtn').addEventListener('click',(e)=>{
+      e.stopPropagation();
       const existing = document.querySelector('.backup-bar');
       if(existing){existing.remove();return;}
       const bar = document.createElement('div');
@@ -761,14 +780,12 @@
           <span class="icon">📥</span><span>Ripristina</span>
         </button>`;
       document.querySelector('.fab-wrap').prepend(bar);
-      document.getElementById('legendBtn').onclick = openLegenda;
+      document.getElementById('legendBtn').onclick = (e) => { e.stopPropagation(); openLegenda(); };
       document.getElementById('exportBtn').onclick = exportDrinks;
       document.getElementById('importBtn').onclick = () => {
         document.getElementById('importInput').click();
       };
     });
-
-    document.getElementById('closeLegendBtn').addEventListener('click',closeLegenda);
 
     document.getElementById('importInput').addEventListener('change',e=>{
       const file = e.target.files[0];
@@ -781,4 +798,3 @@
   </script>
 </body>
 </html>
-
