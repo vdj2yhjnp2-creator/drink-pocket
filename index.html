@@ -1,244 +1,470 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍹 Drink Pocket</title>
-    <script type="module">
-        // Firebase Realtime - sincronizzazione automatica PC ↔ telefono
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-        import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyDq0z0XzL3kL9z5qZ7xY8w9vT2uR4sQ6pM",
-            authDomain: "drink-pocket-sync.firebaseapp.com",
-            databaseURL: "https://drink-pocket-sync-default-rtdb.europe-west1.firebasedatabase.app/",
-            projectId: "drink-pocket-sync"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const drinksRef = ref(db, 'drinks');
-        
-        // Rendi globale per JavaScript
-        window.FB_READY = true;
-        window.drinksRef = drinksRef;
-        window.setDrinks = set;
-        window.onValue = onValue;
-    </script>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container { 
-            max-width: 500px; margin: 0 auto; 
-            background: rgba(255,255,255,0.95); 
-            border-radius: 24px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        .header { 
-            background: linear-gradient(135deg, #ff6b6b, #feca57); 
-            color: white; 
-            padding: 30px 20px; 
-            text-align: center; 
-        }
-        .header h1 { font-size: 2em; margin-bottom: 5px; }
-        .status { 
-            padding: 12px 20px; 
-            background: #d4edda; 
-            color: #155724; 
-            font-weight: 500; 
-            text-align: center; 
-            font-size: 14px;
-        }
-        .search { 
-            padding: 20px; 
-            background: #f8f9fa; 
-        }
-        .search input { 
-            width: 100%; padding: 16px 20px; 
-            border: 2px solid #e9ecef; 
-            border-radius: 16px; 
-            font-size: 16px; 
-            background: white;
-            transition: all 0.3s;
-        }
-        .search input:focus { 
-            outline: none; 
-            border-color: #007bff; 
-            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
-        }
-        .fab { 
-            position: fixed; 
-            bottom: 30px; right: 30px; 
-            width: 70px; height: 70px; 
-            background: linear-gradient(135deg, #ff6b6b, #feca57); 
-            border: none; 
-            border-radius: 50%; 
-            color: white; 
-            font-size: 24px; 
-            box-shadow: 0 10px 30px rgba(255,107,107,0.4);
-            cursor: pointer; 
-            transition: all 0.3s;
-        }
-        .fab:hover { transform: scale(1.1); }
-        .lista { padding: 20px; min-height: 300px; }
-        .drink { 
-            background: white; 
-            margin-bottom: 16px; 
-            border-radius: 16px; 
-            padding: 20px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            transition: all 0.3s;
-        }
-        .drink:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
-        .drink h3 { color: #2c3e50; margin-bottom: 8px; font-size: 1.3em; }
-        .drink p { color: #7f8c8d; margin: 4px 0; font-size: 15px; }
-        .drink small { color: #95a5a6; }
-        .actions { margin-top: 12px; display: flex; gap: 8px; }
-        .btn { 
-            flex: 1; padding: 10px 16px; 
-            border: none; border-radius: 8px; 
-            font-weight: 500; cursor: pointer; 
-            transition: all 0.3s;
-        }
-        .btn-edit { background: #28a745; color: white; }
-        .btn-delete { background: #dc3545; color: white; }
-        .btn:hover { transform: scale(1.02); }
-        .backup { padding: 20px; background: #f8f9fa; border-top: 1px solid #e9ecef; display: flex; gap: 12px; }
-        .btn-backup { flex: 1; padding: 14px; border-radius: 12px; border: none; background: #6c757d; color: white; cursor: pointer; }
-        @media (max-width: 480px) { .container { margin: 10px; border-radius: 20px; } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Mint Pocket</title>
+  <style>
+    :root{
+      --mint-main:#9BAF8B;       /* verde salvia principale */
+      --mint-dark:#5C6B4F;       /* salvia scuro per testi/bottoni */
+      --mint-light:#E3E9DC;      /* sfondo soft */
+      --accent-warm:#D9B18C;     /* accento caldo tipo legno */
+      --bg-main:#F7F4EF;         /* panna di sfondo */
+      --text-main:#333333;
+      --text-soft:#6B6B6B;
+      --radius-lg:18px;
+      --radius-md:12px;
+      --shadow-soft:0 10px 25px rgba(0,0,0,0.08);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,#E8F0E3 0,#F7F4EF 40%,#F1ECE4 100%);
+      min-height:100vh;
+      padding:16px;
+      color:var(--text-main);
+    }
+    .app{
+      max-width:520px;
+      margin:0 auto;
+      background:rgba(255,255,255,0.96);
+      border-radius:24px;
+      box-shadow:var(--shadow-soft);
+      overflow:hidden;
+      border:1px solid rgba(155,175,139,0.25);
+    }
+    .header{
+      padding:22px 20px 16px;
+      background:linear-gradient(135deg,rgba(155,175,139,0.95),rgba(92,107,79,0.98));
+      color:#fff;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .header-title{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .header h1{
+      font-size:1.7rem;
+      letter-spacing:0.03em;
+    }
+    .header span.sub{
+      font-size:0.8rem;
+      opacity:0.9;
+    }
+    .tag{
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(247,244,239,0.16);
+      border:1px solid rgba(247,244,239,0.45);
+      font-size:0.72rem;
+    }
+    .bar{
+      padding:10px 16px 14px;
+      background:var(--bg-main);
+      border-bottom:1px solid rgba(0,0,0,0.03);
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .search-wrap{
+      position:relative;
+      flex:1;
+    }
+    .search-wrap input{
+      width:100%;
+      padding:11px 34px 11px 32px;
+      border-radius:999px;
+      border:1px solid rgba(155,175,139,0.45);
+      background:#fff;
+      font-size:0.95rem;
+      color:var(--text-main);
+    }
+    .search-wrap input:focus{
+      outline:none;
+      border-color:var(--mint-main);
+      box-shadow:0 0 0 3px rgba(155,175,139,0.25);
+    }
+    .search-icon{
+      position:absolute;
+      left:10px;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:0.9rem;
+      opacity:0.75;
+    }
+    .counter{
+      font-size:0.8rem;
+      color:var(--text-soft);
+      padding:2px 6px;
+      border-radius:999px;
+      background:rgba(227,233,220,0.8);
+    }
+    .list{
+      padding:14px 16px 80px;
+      background:linear-gradient(180deg,rgba(227,233,220,0.55),transparent 26px);
+    }
+    .empty{
+      text-align:center;
+      color:var(--text-soft);
+      padding:40px 10px 30px;
+      font-size:0.95rem;
+    }
+    .empty span.emoji{font-size:1.6rem;display:block;margin-bottom:6px;}
+    .card{
+      background:#fff;
+      border-radius:var(--radius-lg);
+      padding:14px 14px 12px;
+      margin-bottom:10px;
+      border:1px solid rgba(155,175,139,0.22);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      bottom:0;
+      width:4px;
+      background:linear-gradient(180deg,var(--mint-main),var(--accent-warm));
+    }
+    .card-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:8px;
+      margin-bottom:4px;
+    }
+    .card-name{
+      font-weight:600;
+      font-size:1.02rem;
+      color:var(--mint-dark);
+    }
+    .card-date{
+      font-size:0.72rem;
+      color:var(--text-soft);
+      padding:3px 7px;
+      border-radius:999px;
+      background:rgba(249,246,240,0.95);
+      border:1px solid rgba(217,177,140,0.4);
+    }
+    .card-body{
+      font-size:0.88rem;
+      color:var(--text-soft);
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      margin-bottom:6px;
+    }
+    .label{
+      font-size:0.72rem;
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      color:var(--text-soft);
+    }
+    .value{
+      color:var(--text-main);
+    }
+    .actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:6px;
+      margin-top:4px;
+    }
+    .btn{
+      border:none;
+      border-radius:999px;
+      padding:7px 12px;
+      font-size:0.78rem;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      transition:transform .12s ease,box-shadow .12s ease,background .12s ease;
+    }
+    .btn:active{transform:scale(0.97);}
+    .btn-primary{
+      background:var(--mint-dark);
+      color:#fff;
+      box-shadow:0 4px 10px rgba(92,107,79,0.45);
+    }
+    .btn-primary:hover{background:#4c5b40;}
+    .btn-ghost{
+      background:rgba(155,175,139,0.06);
+      color:var(--mint-dark);
+    }
+    .btn-ghost:hover{background:rgba(155,175,139,0.13);}
+    .fab-wrap{
+      position:sticky;
+      bottom:0;
+      padding:10px 16px 14px;
+      background:linear-gradient(180deg,rgba(247,244,239,0),rgba(247,244,239,0.95));
+      border-top:1px solid rgba(0,0,0,0.03);
+      display:flex;
+      gap:10px;
+    }
+    .fab-main{
+      flex:1;
+      border-radius:999px;
+      padding:11px 16px;
+      border:none;
+      background:linear-gradient(135deg,var(--mint-main),var(--mint-dark));
+      color:#fff;
+      font-weight:600;
+      font-size:0.96rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      box-shadow:0 8px 20px rgba(92,107,79,0.55);
+      cursor:pointer;
+      transition:transform .14s ease,box-shadow .14s ease;
+    }
+    .fab-main:active{transform:translateY(1px);box-shadow:0 4px 10px rgba(92,107,79,0.4);}
+    .fab-secondary{
+      width:46px;
+      border-radius:999px;
+      border:none;
+      background:#fff;
+      color:var(--mint-dark);
+      box-shadow:0 6px 14px rgba(0,0,0,0.1);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      font-size:1.1rem;
+    }
+    .backup-bar{
+      display:flex;
+      gap:8px;
+      margin-top:2px;
+    }
+    .backup-btn{
+      flex:1;
+      font-size:0.78rem;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px dashed rgba(155,175,139,0.7);
+      background:rgba(247,244,239,0.9);
+      color:var(--mint-dark);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      cursor:pointer;
+    }
+    .backup-btn span.icon{font-size:0.9rem;}
+    @media (max-width:480px){
+      .app{border-radius:20px;}
+      .header h1{font-size:1.5rem;}
+      .list{padding-bottom:78px;}
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🍹 Drink Pocket</h1>
-            <div id="status" class="status">🔄 Connessione...</div>
-        </div>
-        
-        <div class="search">
-            <input type="text" id="cerca" placeholder="🔍 Cerca tra i tuoi drink...">
-        </div>
-        
-        <div class="lista" id="lista"></div>
-        
-        <div class="backup">
-            <button class="btn-backup" onclick="esporta()">📤 Backup</button>
-            <input type="file" id="importa" accept=".json" onchange="importa(event)" style="display:none">
-            <button class="btn-backup" onclick="document.getElementById('importa').click()">📥 Ripristina</button>
-        </div>
-    </div>
-    
-    <button class="fab" onclick="nuovo()">➕</button>
+  <div class="app">
+    <header class="header">
+      <div class="header-title">
+        <h1>Mint Pocket</h1>
+        <span class="sub">Il taccuino dei tuoi drink</span>
+      </div>
+      <div class="tag">offline • questo dispositivo</div>
+    </header>
 
-    <script>
-        let drinks = [];
-        
-        // Inizializza Firebase sync
-        if(window.FB_READY) {
-            window.onValue(window.drinksRef, (snapshot) => {
-                drinks = snapshot.val() ? Object.values(snapshot.val()) : [];
-                document.getElementById('status').textContent = `✅ Sincronizzato (${drinks.length} drink)`;
-                render();
-            });
-            document.getElementById('status').textContent = '✅ Sincronizzazione attiva';
-        } else {
-            document.getElementById('status').textContent = '⚠️ Modalità offline';
+    <section class="bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input id="search" type="text" placeholder="Cerca un drink..." />
+      </div>
+      <div class="counter" id="counter">0</div>
+    </section>
+
+    <main class="list" id="list"></main>
+
+    <footer class="fab-wrap">
+      <button class="fab-main" id="newBtn">
+        <span>＋ Nuovo drink</span>
+      </button>
+      <button class="fab-secondary" id="menuBackupBtn">☰</button>
+    </footer>
+  </div>
+
+  <input type="file" id="importInput" accept=".json" style="display:none" />
+
+  <script>
+    const STORAGE_KEY = 'mintPocketDrinks_v1';
+    let drinks = [];
+
+    function loadFromStorage(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        drinks = raw ? JSON.parse(raw) : [];
+      }catch(e){
+        drinks = [];
+      }
+    }
+    function saveToStorage(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(drinks));
+      render();
+    }
+
+    function createDrink(){
+      const nome = prompt('Nome del drink:');
+      if(!nome) return;
+      const ingr = prompt('Ingredienti (es. 3cl gin, 3cl vermouth...):') || '';
+      const istr = prompt('Preparazione / note:') || '';
+      drinks.unshift({
+        id: Date.now(),
+        nome,
+        ingredienti: ingr,
+        istruzioni: istr,
+        data: new Date().toLocaleDateString('it-IT')
+      });
+      saveToStorage();
+    }
+
+    function editDrink(id){
+      const d = drinks.find(x => x.id === id);
+      if(!d) return;
+      const nome = prompt('Nome del drink:', d.nome);
+      if(!nome) return;
+      const ingr = prompt('Ingredienti:', d.ingredienti) ?? d.ingredienti;
+      const istr = prompt('Preparazione / note:', d.istruzioni) ?? d.istruzioni;
+      d.nome = nome;
+      d.ingredienti = ingr;
+      d.istruzioni = istr;
+      d.data = new Date().toLocaleDateString('it-IT');
+      saveToStorage();
+    }
+
+    function deleteDrink(id){
+      const d = drinks.find(x => x.id === id);
+      if(!d) return;
+      if(!confirm(`Eliminare "${d.nome}"?`)) return;
+      drinks = drinks.filter(x => x.id !== id);
+      saveToStorage();
+    }
+
+    function exportDrinks(){
+      const blob = new Blob([JSON.stringify(drinks,null,2)],{type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `mint-pocket-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importDrinks(file){
+      const reader = new FileReader();
+      reader.onload = e => {
+        try{
+          const imported = JSON.parse(e.target.result);
+          if(!Array.isArray(imported)) throw new Error();
+          if(!confirm(`Sostituire i ${drinks.length} drink attuali con ${imported.length} dal file?`)) return;
+          drinks = imported.map(d => ({
+            id: d.id || Date.now()+Math.random(),
+            nome: d.nome || 'Senza nome',
+            ingredienti: d.ingredienti || '',
+            istruzioni: d.istruzioni || '',
+            data: d.data || new Date().toLocaleDateString('it-IT')
+          }));
+          saveToStorage();
+        }catch{
+          alert('File non valido.');
         }
-        
-        function render() {
-            const query = document.getElementById('cerca').value.toLowerCase();
-            const lista = document.getElementById('lista');
-            lista.innerHTML = drinks
-                .filter(d => d.nome.toLowerCase().includes(query))
-                .map((drink, i) => drinkCard(drink, i))
-                .join('') || '<div style="text-align:center;padding:40px;color:#95a5a6"><p>🍸 Nessun drink trovato</p><p>Aggiungi il primo!</p></div>';
-        }
-        
-        function drinkCard(drink, i) {
-            return `
-                <div class="drink">
-                    <h3>${drink.nome}</h3>
-                    ${drink.ingredienti ? `<p>🥃 ${drink.ingredienti}</p>` : ''}
-                    ${drink.istruzioni ? `<p>📝 ${drink.istruzioni}</p>` : ''}
-                    <small>✨ ${drink.data || 'Data'}</small>
-                    <div class="actions">
-                        <button class="btn btn-edit" onclick="edit(${i})">✏️ Modifica</button>
-                        <button class="btn btn-delete" onclick="del(${i})">🗑️ Elimina</button>
-                    </div>
-                </div>
-            `;
-        }
-        
-        window.nuovo = function() {
-            const nome = prompt("🍹 Nome del drink:");
-            if(nome && window.FB_READY) {
-                drinks.push({
-                    nome,
-                    ingredienti: "",
-                    istruzioni: "",
-                    data: new Date().toLocaleDateString('it-IT')
-                });
-                save();
-            }
-        }
-        
-        window.edit = function(i) {
-            const d = drinks[i];
-            d.nome = prompt("Nome:", d.nome) || d.nome;
-            d.ingredienti = prompt("Ingredienti:", d.ingredienti) || d.ingredienti;
-            d.istruzioni = prompt("Preparazione:", d.istruzioni) || d.istruzioni;
-            d.data = new Date().toLocaleDateString('it-IT');
-            save();
-        }
-        
-        window.del = function(i) {
-            if(confirm("🗑️ Eliminare questo drink?")) {
-                drinks.splice(i, 1);
-                save();
-            }
-        }
-        
-        function save() {
-            if(window.FB_READY) {
-                const data = {};
-                drinks.forEach((d, i) => data[i] = d);
-                window.setDrinks(window.drinksRef, data);
-            }
-        }
-        
-        document.getElementById('cerca').addEventListener('input', render);
-        
-        // Backup/Ripristino
-        window.esporta = () => {
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([JSON.stringify(drinks, null, 2)], {type: 'application/json'}));
-            a.download = `drink-pocket-${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
-        }
-        
-        window.importa = (e) => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                try {
-                    const imported = JSON.parse(ev.target.result);
-                    if(confirm(`Importare ${imported.length} drink?`)) {
-                        drinks = imported;
-                        save();
-                    }
-                } catch {
-                    alert('❌ File non valido');
-                }
-            };
-            reader.readAsText(file);
-        }
-    </script>
+      };
+      reader.readAsText(file);
+    }
+
+    function render(){
+      const listEl = document.getElementById('list');
+      const q = document.getElementById('search').value.trim().toLowerCase();
+      const filtered = drinks.filter(d =>
+        !q ||
+        d.nome.toLowerCase().includes(q) ||
+        d.ingredienti.toLowerCase().includes(q) ||
+        d.istruzioni.toLowerCase().includes(q)
+      );
+      document.getElementById('counter').textContent = filtered.length;
+
+      if(filtered.length === 0){
+        listEl.innerHTML = `
+          <div class="empty">
+            <span class="emoji">🥂</span>
+            <p>Nessun drink salvato.</p>
+            <p>Inizia a costruire la tua lista di cocktail di casa.</p>
+          </div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(d => `
+        <article class="card">
+          <div class="card-top">
+            <div class="card-name">${escapeHtml(d.nome)}</div>
+            <span class="card-date">${escapeHtml(d.data)}</span>
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="label">Ingredienti</div>
+              <div class="value">${escapeHtml(d.ingredienti || '—')}</div>
+            </div>
+            <div>
+              <div class="label">Note</div>
+              <div class="value">${escapeHtml(d.istruzioni || '—')}</div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-ghost" onclick="editDrink(${d.id})">✏️ Modifica</button>
+            <button class="btn btn-primary" onclick="deleteDrink(${d.id})">🗑️ Elimina</button>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+    }
+
+    document.getElementById('newBtn').addEventListener('click',createDrink);
+    document.getElementById('search').addEventListener('input',render);
+
+    document.getElementById('menuBackupBtn').addEventListener('click',()=>{
+      const existing = document.querySelector('.backup-bar');
+      if(existing){existing.remove();return;}
+      const bar = document.createElement('div');
+      bar.className = 'backup-bar';
+      bar.innerHTML = `
+        <button class="backup-btn" id="exportBtn">
+          <span class="icon">📤</span><span>Backup</span>
+        </button>
+        <button class="backup-btn" id="importBtn">
+          <span class="icon">📥</span><span>Ripristina</span>
+        </button>`;
+      document.querySelector('.fab-wrap').prepend(bar);
+      document.getElementById('exportBtn').onclick = exportDrinks;
+      document.getElementById('importBtn').onclick = () => {
+        document.getElementById('importInput').click();
+      };
+    });
+
+    document.getElementById('importInput').addEventListener('change',e=>{
+      const file = e.target.files[0];
+      if(file) importDrinks(file);
+      e.target.value='';
+    });
+
+    loadFromStorage();
+    render();
+  </script>
 </body>
 </html>
