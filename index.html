@@ -235,7 +235,7 @@
       position:relative;
     }
     .ingredient-list li::before{
-      content:"â€¢";
+      content:"•";
       position:absolute;
       left:0;
       color:var(--mint-main);
@@ -753,14 +753,14 @@
         <span class="sub" id="headerSub">Il taccuino dei tuoi drink</span>
       </div>
       <div class="header-actions">
-        <div class="tag" id="statusTag">offline â€¢ questo dispositivo</div>
-        <button class="categories-btn" id="categoriesBtn">ðŸ“‚ Categorie</button>
+        <div class="tag" id="statusTag">offline • questo dispositivo</div>
+        <button class="categories-btn" id="categoriesBtn">📂 Categorie</button>
       </div>
     </header>
 
     <section class="bar">
       <div class="search-wrap">
-        <span class="search-icon">ðŸ”</span>
+        <span class="search-icon">🔍</span>
         <input id="search" type="text" placeholder="Cerca un drink..." />
         <div class="filter-indicator" id="filterIndicator" style="display:none;"></div>
       </div>
@@ -771,9 +771,9 @@
 
     <footer class="fab-wrap">
       <button class="fab-main" id="newBtn">
-        <span>ï¼‹ Nuovo drink</span>
+        <span>＋ Nuovo drink</span>
       </button>
-      <button class="fab-secondary" id="menuBtn">â˜°</button>
+      <button class="fab-secondary" id="menuBtn">☰</button>
     </footer>
   </div>
 
@@ -783,8 +783,8 @@
       <div class="modal-title">Seleziona tipo</div>
       <select id="typeSelect" class="modal-select">
         <option value="">-- Scegli --</option>
-        <option value="drink">ðŸ¥ƒ Drink</option>
-        <option value="prebatch">ðŸ§ƒ Pre Batch</option>
+        <option value="drink">🥃 Drink</option>
+        <option value="prebatch">🧃 Pre Batch</option>
       </select>
       <div class="modal-actions">
         <button class="modal-btn modal-btn-cancel" id="cancelTypeBtn">Annulla</button>
@@ -810,7 +810,7 @@
     <div class="modal-content categories-modal-content">
       <div class="modal-header">
         <div class="modal-title">Gestione Categorie</div>
-        <button class="add-category-in-modal" id="addCategoryBtn">âž•</button>
+        <button class="add-category-in-modal" id="addCategoryBtn">➕</button>
       </div>
       <div id="categoriesList"></div>
       <div class="modal-actions">
@@ -838,7 +838,7 @@
   <div id="preparationModal" class="modal-overlay" onclick="if(event.target === this) closeModal('preparationModal')">
     <div class="modal-content">
       <div class="modal-title">Preparazione / Note</div>
-      <textarea id="preparationTextarea" class="modal-textarea" placeholder="Scrivi la preparazione su piÃ¹ righe..."></textarea>
+      <textarea id="preparationTextarea" class="modal-textarea" placeholder="Scrivi la preparazione su più righe..."></textarea>
       <div class="modal-actions">
         <button class="modal-btn modal-btn-cancel" id="cancelPreparationBtn">Annulla</button>
         <button class="modal-btn modal-btn-confirm" id="confirmPreparationBtn">Salva</button>
@@ -851,11 +851,11 @@
     <div class="legend-content">
       <div class="legend-header">
         Legenda
-        <button class="legend-close" id="closeLegendBtn" onclick="closeLegenda(); return false;">âœ•</button>
+        <button class="legend-close" id="closeLegendBtn" onclick="closeLegenda(); return false;">✕</button>
       </div>
       <div class="legend-tabs">
-        <button class="legend-tab active" id="drinkTab" onclick="switchLegendaTab('drink')">ðŸ¥ƒ Drink</button>
-        <button class="legend-tab" id="prebatchTab" onclick="switchLegendaTab('prebatch')">ðŸ§ƒ Pre Batch</button>
+        <button class="legend-tab active" id="drinkTab" onclick="switchLegendaTab('drink')">🥃 Drink</button>
+        <button class="legend-tab" id="prebatchTab" onclick="switchLegendaTab('prebatch')">🧃 Pre Batch</button>
       </div>
       <div class="alphabet" id="alphabet"></div>
       <div class="legend-scroll">
@@ -1069,8 +1069,8 @@
             </div>
           </div>
           <div class="category-controls">
-            <span class="category-drag" draggable="true" title="Trascina per riordinare">â‹®â‹®</span>
-            <button class="category-remove" onclick="event.stopPropagation(); removeCategory(${cat.id})" title="Elimina">âœ•</button>
+            <span class="category-drag" draggable="true" title="Trascina per riordinare">⋮⋮</span>
+            <button class="category-remove" onclick="event.stopPropagation(); removeCategory(${cat.id})" title="Elimina">✕</button>
           </div>
         </div>
       `).join('');
@@ -1372,7 +1372,7 @@
       if(!q && !hasSearched && !currentFilter){
         listEl.innerHTML = `
           <div class="empty">
-            <span class="emoji">ðŸ¥‚</span>
+            <span class="emoji">🥂</span>
             <p>Scrivi il nome di un drink per cercarlo o usa le categorie.</p>
           </div>`;
         document.getElementById('counter').textContent = '0';
@@ -1396,7 +1396,7 @@
       if(filtered.length === 0){
         listEl.innerHTML = `
           <div class="empty">
-            <span class="emoji">ðŸ¸</span>
+            <span class="emoji">🍸</span>
             <p>${currentFilter ? 'Nessun drink in questa categoria.' : 'Nessun drink trovato.'}</p>
           </div>`;
         return;
@@ -1405,7 +1405,7 @@
       listEl.innerHTML = filtered.map(d => {
         const ingredienti = parseIngredienti(d.ingredienti);
         const preparation = parsePreparation(d.istruzioni);
-        const typeIcon = d.tipo === 'prebatch' ? 'ðŸ§ƒ' : 'ðŸ¥ƒ';
+        const typeIcon = d.tipo === 'prebatch' ? '🧃' : '🥃';
         const catTags = (d.categorie || []).map(catId => {
           const cat = categories.find(c => c.id === catId);
           return cat ? `<span class="category-tag" style="background: ${cat.color}">${escapeHtml(cat.nome)}</span>` : '';
@@ -1425,7 +1425,7 @@
               <div class="label">Ingredienti</div>
               ${ingredienti.length > 0 
                 ? `<ul class="ingredient-list">${ingredienti.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul>`
-                : `<div class="value">â€”</div>`
+                : `<div class="value">—</div>`
               }
             </div>
             ${preparation.length > 0 ? `
@@ -1436,8 +1436,8 @@
             ` : ''}
           </div>
           <div class="actions">
-            <button class="btn btn-ghost" onclick="editDrink(${d.id})">âœï¸ Modifica</button>
-            <button class="btn btn-primary" onclick="deleteDrink(${d.id})">ðŸ—‘ï¸ Elimina</button>
+            <button class="btn btn-ghost" onclick="editDrink(${d.id})">✏️ Modifica</button>
+            <button class="btn btn-primary" onclick="deleteDrink(${d.id})">🗑️ Elimina</button>
           </div>
         </article>
       `;
@@ -1476,19 +1476,19 @@
       bar.className = 'backup-bar';
       bar.innerHTML = `
         <button class="backup-btn" id="refreshBtn" style="display:${currentFilter || hasSearched ? 'flex' : 'none'};">
-          <span class="icon">ðŸ”„</span><span>Torna all'inizio</span>
+          <span class="icon">🔄</span><span>Torna all'inizio</span>
         </button>
         <button class="backup-btn" id="clearFilterBtn" style="display:${currentFilter ? 'flex' : 'none'};">
-          <span class="icon">âŒ</span><span>Pulisci filtro</span>
+          <span class="icon">❌</span><span>Pulisci filtro</span>
         </button>
         <button class="backup-btn" id="legendBtn">
-          <span class="icon">ðŸ“‹</span><span>Legenda</span>
+          <span class="icon">📋</span><span>Legenda</span>
         </button>
         <button class="backup-btn" id="exportBtn">
-          <span class="icon">ðŸ“¤</span><span>Backup</span>
+          <span class="icon">📤</span><span>Backup</span>
         </button>
         <button class="backup-btn" id="importBtn">
-          <span class="icon">ðŸ“¥</span><span>Ripristina</span>
+          <span class="icon">📥</span><span>Ripristina</span>
         </button>`;
       document.querySelector('.fab-wrap').prepend(bar);
       
