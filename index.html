@@ -399,7 +399,7 @@
       display:flex;
       justify-content:space-between;
       align-items:center;
-      margin-bottom:16px;
+      margin-bottom:12px;
       font-size:1.1rem;
       font-weight:600;
       color:var(--mint-dark);
@@ -413,6 +413,34 @@
       color:var(--text-soft);
       z-index:1000;
       position:relative;
+    }
+    .alphabet{
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px;
+      margin-bottom:12px;
+      padding-bottom:12px;
+      border-bottom:1px solid rgba(155,175,139,0.2);
+    }
+    .alpha-btn{
+      background:rgba(155,175,139,0.08);
+      border:1px solid rgba(155,175,139,0.3);
+      border-radius:6px;
+      padding:4px 8px;
+      font-size:0.75rem;
+      font-weight:600;
+      color:var(--mint-dark);
+      cursor:pointer;
+      transition:all .12s ease;
+    }
+    .alpha-btn:hover{
+      background:var(--mint-main);
+      color:#fff;
+      border-color:var(--mint-main);
+    }
+    .alpha-btn.disabled{
+      opacity:0.4;
+      cursor:not-allowed;
     }
     .legend-scroll{
       overflow-y:auto;
@@ -446,6 +474,17 @@
       font-weight:500;
       color:var(--mint-dark);
       font-size:0.95rem;
+    }
+    .legend-section-header{
+      font-weight:600;
+      font-size:0.85rem;
+      color:var(--text-soft);
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      margin-top:12px;
+      margin-bottom:4px;
+      padding:8px 0;
+      border-top:1px solid rgba(155,175,139,0.15);
     }
     @media (max-width:480px){
       .app{border-radius:20px;}
@@ -513,6 +552,7 @@
         Legenda
         <button class="legend-close" id="closeLegendBtn" onclick="closeLegenda(); return false;">✕</button>
       </div>
+      <div class="alphabet" id="alphabet"></div>
       <div class="legend-scroll">
         <ul id="legendList" class="legend-list"></ul>
       </div>
@@ -573,20 +613,82 @@
       openModal('preparation', defaultValue, callback);
     }
 
+    function buildAlphabet(){
+      const legendScroll = document.getElementById('legend-scroll');
+      const drinkLetters = new Set();
+      drinks.forEach(d => {
+        const letter = d.nome.charAt(0).toUpperCase();
+        if(/[A-Z]/.test(letter)){
+          drinkLetters.add(letter);
+        }
+      });
+
+      const alphabetEl = document.getElementById('alphabet');
+      alphabetEl.innerHTML = '';
+      
+      for(let i = 65; i <= 90; i++){
+        const letter = String.fromCharCode(i);
+        const btn = document.createElement('button');
+        btn.className = 'alpha-btn';
+        if(!drinkLetters.has(letter)){
+          btn.classList.add('disabled');
+        }
+        btn.textContent = letter;
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          if(!drinkLetters.has(letter)) return;
+          scrollToLetter(letter);
+        };
+        alphabetEl.appendChild(btn);
+      }
+    }
+
+    function scrollToLetter(letter){
+      const listItems = document.querySelectorAll('.legend-item');
+      let targetItem = null;
+      
+      for(let item of listItems){
+        const firstLetter = item.querySelector('.legend-item-name').textContent.charAt(0).toUpperCase();
+        if(firstLetter === letter){
+          targetItem = item;
+          break;
+        }
+      }
+      
+      if(targetItem){
+        const scroll = document.querySelector('.legend-scroll');
+        const offset = targetItem.offsetTop - scroll.offsetTop - 10;
+        scroll.scrollTop = offset;
+      }
+    }
+
     function openLegenda(){
       const sorted = [...drinks].sort((a,b) => a.nome.localeCompare(b.nome));
       const legendList = document.getElementById('legendList');
       
       if(sorted.length === 0){
         legendList.innerHTML = '<li style="text-align:center;padding:20px;color:var(--text-soft)">Nessun drink salvato</li>';
-      } else {
-        legendList.innerHTML = sorted.map(d => `
+        buildAlphabet();
+        document.getElementById('legendModal').classList.add('active');
+        return;
+      }
+
+      let currentLetter = '';
+      legendList.innerHTML = sorted.map(d => {
+        const letter = d.nome.charAt(0).toUpperCase();
+        let header = '';
+        if(letter !== currentLetter && /[A-Z]/.test(letter)){
+          currentLetter = letter;
+          header = `<div class="legend-section-header">${letter}</div>`;
+        }
+        return header + `
           <li class="legend-item" onclick="searchDrink('${escapeHtml(d.nome)}'); return false;">
             <div class="legend-item-name">${escapeHtml(d.nome)}</div>
           </li>
-        `).join('');
-      }
+        `;
+      }).join('');
       
+      buildAlphabet();
       document.getElementById('legendModal').classList.add('active');
     }
 
